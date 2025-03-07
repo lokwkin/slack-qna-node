@@ -1,5 +1,6 @@
 import { App, GenericMessageEvent } from "@slack/bolt";
 import { CommandHook, IncomingMessage, OutgoingMessage, Reactions } from "./schema";
+import { getFileTypeFromBuffer } from "./utils/fileUtils";
 
 export interface SlackQnaListenArgs {
     command?: boolean,
@@ -100,23 +101,40 @@ export class SlackQna {
                 text: message.data,
             });
         } else if (message.dataType === 'image' && Buffer.isBuffer(message.data)) {
+            const ext = getFileTypeFromBuffer(message.data)
             await this.slackApp.client.filesUploadV2({
                 channel_id: message.channelId,
                 thread_ts: message.threadId,
                 file: message.data,
-                filename: 'data.png',
+                filename: `data.${ext ?? 'png'}`,
             });
-
-        } else if (message.dataType === 'file' && Buffer.isBuffer(message.data)) {
+        } else if (message.dataType === 'html' && Buffer.isBuffer(message.data)) {
+            await this.slackApp.client.filesUploadV2({
+                channel_id: message.channelId,
+                thread_ts: message.threadId,
+                file: message.data,
+                filename: 'data.html',
+            });
+        } else if (message.dataType === 'txt' && Buffer.isBuffer(message.data)) {
             await this.slackApp.client.filesUploadV2({
                 channel_id: message.channelId,
                 thread_ts: message.threadId,
                 file: message.data,
                 filename: 'data.txt',
             });
+        } else if ((message.dataType === 'file' || message.dataType === 'binary') && Buffer.isBuffer(message.data)) {
+            const ext = getFileTypeFromBuffer(message.data)
+            await this.slackApp.client.filesUploadV2({
+                channel_id: message.channelId,
+                thread_ts: message.threadId,
+                file: message.data,
+                filename: `data.${ext ?? 'bin'}`,
+            });
         }
         
     }
+
+
 
     async processMessage(incomingMessage: IncomingMessage) {
         console.info(`[${new Date().toISOString()}] SLACK_PROCESS_MESSAGE ${JSON.stringify(incomingMessage)}`);

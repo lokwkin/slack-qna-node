@@ -9,7 +9,7 @@ export type IncomingMessage = {
 export type OutgoingMessage = {
     channelId: string;
     data: string | Buffer;
-    dataType: 'text' | 'image' | 'file' | 'markdown' |'mrkdwn';
+    dataType: 'text' | 'image' | 'file' | 'markdown' |'mrkdwn' | 'html' | 'txt' | 'binary';
     threadId?: string;
     block?: 'section' | 'context';
 }
@@ -22,7 +22,7 @@ export type Reactions = {
 
 export type CommandHook = {
     isSync: boolean;
-    dataType: 'text'|'image' | 'file' | 'markdown' | 'mrkdwn';
+    dataType: 'text'|'image' | 'file' | 'markdown' | 'mrkdwn' | 'html' | 'txt' | 'binary';
     block?: 'section' | 'context';
     handler: (message: IncomingMessage) => Promise<string|Buffer>;
 }
